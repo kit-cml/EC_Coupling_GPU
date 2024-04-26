@@ -1,5 +1,6 @@
 // #include "cellmodels/enums/enum_Ohara_Rudy_2011.hpp"
 #include "../cellmodels/Ohara_Rudy_2011.hpp"
+#include "../cellmodels/Land_2016.hpp"
 #include <stdio.h>
 #include <cuda_runtime.h>
 #include <cuda.h>

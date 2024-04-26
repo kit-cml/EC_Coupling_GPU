@@ -665,7 +665,7 @@ __device__ void ___applyCvar(double *CONSTANTS, double *cvar, int offset)
   // CONSTANTS[(offset * num_of_constants) +KCaMK_scale] *= cvar[17 + (offset*18)];	// KCaMK
 }
 
-__device__ void applyDrugEffect(double *CONSTANTS, double conc, double *ic50, double epsilon, int offset)
+__device__ void ord_applyDrugEffect(double *CONSTANTS, double conc, double *ic50, double epsilon, int offset)
 {
 int num_of_constants = 146;
 
@@ -689,7 +689,7 @@ CONSTANTS[PCa+(offset * num_of_constants)] = CONSTANTS[PCa+(offset * num_of_cons
 // 	___initConsts(type, offset);
 // }
 
-__device__ void initConsts(double *CONSTANTS, double *STATES, double type, double conc, double *ic50, double *cvar, bool is_dutta, bool is_cvar,  int offset)
+__device__ void ord_initConsts(double *CONSTANTS, double *STATES, double type, double conc, double *ic50, double *cvar, bool is_dutta, bool is_cvar,  int offset)
 {
   // int num_of_constants = 146;
   // printf("ic50:%d %lf, %lf, %lf\n",offset,ic50[0 + (offset*14)],ic50[1 + (offset*14)],ic50[2 + (offset*14)]);
@@ -720,7 +720,7 @@ __device__ void initConsts(double *CONSTANTS, double *STATES, double type, doubl
 
 
 
-__device__ void computeRates( double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, int offset )
+__device__ void ord_computeRates( double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, int offset )
 {
 int num_of_constants = 146; //done
 int num_of_states = 41; //done
@@ -969,7 +969,7 @@ RATES[(offset * num_of_rates) + cansr] = ALGEBRAIC[(offset * num_of_algebraic) +
 RATES[(offset * num_of_rates) + cajsr] =  ALGEBRAIC[(offset * num_of_algebraic) + Bcajsr]*(ALGEBRAIC[(offset * num_of_algebraic) + Jtr] - ALGEBRAIC[(offset * num_of_algebraic) + Jrel]);
 }
 
-__device__ void solveAnalytical(double *CONSTANTS, double *STATES, double *ALGEBRAIC, double *RATES, double dt, int offset)
+__device__ void ord_solveAnalytical(double *CONSTANTS, double *STATES, double *ALGEBRAIC, double *RATES, double dt, int offset)
 {
   int num_of_constants = 146;
   int num_of_states = 41;
@@ -1091,7 +1091,7 @@ __device__ void solveAnalytical(double *CONSTANTS, double *STATES, double *ALGEB
 // #endif
 }
 
-__device__ double set_time_step(double TIME,
+__device__ double ord_set_time_step(double TIME,
   double time_point,
   double max_time_step,
   double *CONSTANTS,

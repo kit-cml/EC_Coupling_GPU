@@ -3,10 +3,11 @@
 
 class Cellmodel
 {
+
 protected:
-  Cellmodel(){}
+	Cellmodel(){}
 public:
-  unsigned short algebraic_size;
+	 unsigned short algebraic_size;
   unsigned short constants_size;
   unsigned short states_size;
   unsigned short gates_size;
@@ -23,13 +24,26 @@ public:
   char concs_header[255];
   unsigned short concs_indices[255];
   virtual ~Cellmodel() {}
+
   virtual void initConsts() = 0;
   virtual void initConsts(double type){}
   virtual void initConsts(double type, double conc, double *hill){}
   virtual void initConsts(double type, double conc, double *hill, bool is_dutta){}
-  virtual void computeRates(double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC) = 0;
-  virtual void solveAnalytical(double dt) {};
-};
+  virtual void initConsts(double type, double bcl, double conc, double *hill, bool is_dutta){}
+  virtual void initConsts(double type, double conc, double *hill, double* boot){}
+  virtual void initConsts( bool is_skinned, bool BETA, double* y){}
+  
+  virtual void computeRates() = 0;
+  virtual void computeRates(double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC){}
+  virtual void computeRates(double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, double land_trpn){}
+  virtual void computeRates(double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, double *y){}
 
+  // virtual void solveAnalytical() = 0;
+  virtual void solveAnalytical(double dt) {}
+  virtual void solveAnalytical(double dt, double Ca_TRPN) {}
+
+  virtual void land_solveEuler( double dt, double t, double Cai_input ){}
+  // virtual void solveRK4(double TIME,double dt) {}
+};
 
 #endif
