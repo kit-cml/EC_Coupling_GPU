@@ -14,9 +14,9 @@ public:
 	// void initConsts(double type);
 	// void initConsts(bool is_dutta);
 	// void initConsts(double type, double conc, double *ic50, bool is_dutta );
-    void initConsts( bool is_skinned, bool BETA, double* y);
+    void initConsts( bool is_skinned, bool BETA, double* y, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, int offset);
 	void computeRates(double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, double *y);
-	void solveEuler( double dt, double t, double Cai_input );
+	void solveEuler( double dt, double t, double Cai_input,  double *CONSTANTS, double *RATES, double *STATES, int offset);
 	//static double set_time_step(double TIME,double time_point,double max_time_step,
 //   double* CONSTANTS,
 //   double* RATES,

@@ -20,7 +20,10 @@
 // }
 
 
-__device__ void land_initConsts(bool is_skinned, bool BETA, double *y)
+__device__ void land_initConsts(
+    bool is_skinned, bool BETA, double *y, 
+    double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, 
+    int offset)
 {
     // user input
     CONSTANTS[dlambda_dt] = 0; 
@@ -232,7 +235,10 @@ ALGEBRAIC[land_T] = ALGEBRAIC[Ta] + ALGEBRAIC[Tp];
 
 }
 
-__device__ void land_solveEuler(double dt, double t, double Cai_input)
+__device__ void land_solveEuler(
+    double dt, double t, double Cai_input,
+    double *CONSTANTS, double *RATES, double *STATES, int offset
+    )
 {
 
     CONSTANTS[Cai] = Cai_input;

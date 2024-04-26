@@ -1091,7 +1091,8 @@ __device__ void ord_solveAnalytical(double *CONSTANTS, double *STATES, double *A
 // #endif
 }
 
-__device__ double ord_set_time_step(double TIME,
+__device__ double ord_set_time_step(
+  double TIME,
   double time_point,
   double max_time_step,
   double *CONSTANTS,
