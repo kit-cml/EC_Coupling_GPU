@@ -19,6 +19,23 @@
 
 // }
 
+__device__ double check_max(double a, double b){
+    if (a>b){
+        return a;
+    }
+    else {
+        return b;
+    }
+}
+__device__ double check_min(double a, double b){
+    if (a>b){
+        return b;
+    }
+    else {
+        return a;
+    }
+}
+
 
 __device__ void land_initConsts(
     bool is_skinned, bool BETA, double *y, 
@@ -85,9 +102,9 @@ if (CONSTANTS[lambda] >= 1.2){
     CONSTANTS[k_uw] = 0.026 * CONSTANTS[nu];
 
     //STATES Variables
-    if(y[0]>0) STATES[XS] = fmax(0,y[0]);
-    if(y[1]>0) STATES[XW] = fmax(0,y[1]);
-    if(y[2]>0) STATES[TRPN] = fmax(0,y[2]);
+    if(y[0]>0) STATES[XS] = check_max(0,y[0]);
+    if(y[1]>0) STATES[XW] = check_max(0,y[1]);
+    if(y[2]>0) STATES[TRPN] = check_max(0,y[2]);
     STATES[TmBlocked] = y[3];
     STATES[ZETAS] = y[4];
     STATES[ZETAW] = y[5];
@@ -112,8 +129,8 @@ __device__ void land_computeRates(double TIME, double *CONSTANTS, double *RATES,
 // lambda = min(1.2,lambda);
 // Lfac =  max(0, 1 + beta_0 * (lambda + min(0.87,lambda) - 1.87) );
 
-CONSTANTS[lambda] = fmin(1.2, CONSTANTS[lambda]);
-ALGEBRAIC[Lfac]  = fmax(0, 1 + CONSTANTS[beta_0] * (CONSTANTS[lambda] + fmin(0.87, CONSTANTS[lambda]) - 1.87));
+CONSTANTS[lambda] = check_min(1.2, CONSTANTS[lambda]);
+ALGEBRAIC[Lfac]  = check_max(0, 1 + CONSTANTS[beta_0] * (CONSTANTS[lambda] + check_min(0.87, CONSTANTS[lambda]) - 1.87));
 
 if (ALGEBRAIC[Lfac] < 0){
     ALGEBRAIC[Lfac] = 0 ;
@@ -153,7 +170,7 @@ if(STATES[ZETAS] > 0){
 if (STATES[ZETAS]<-1){
     temp_zetas2 = -1 * STATES[ZETAS] -1; 
 }
-ALGEBRAIC[gamma_rate] = CONSTANTS[gamma_idx] * fmax( temp_zetas1, temp_zetas2);
+ALGEBRAIC[gamma_rate] = CONSTANTS[gamma_idx] * check_max( temp_zetas1, temp_zetas2);
 
 // xb_su_gamma = gamma_rate * XS;
 ALGEBRAIC[xb_su_gamma] = ALGEBRAIC[gamma_rate] * STATES[XS];
@@ -170,7 +187,7 @@ RATES[XW] = ALGEBRAIC[xb_uw] - ALGEBRAIC[xb_wu] - ALGEBRAIC[xb_ws] - ALGEBRAIC[x
 
 // ca50 = ca50 + beta_1*min(0.2,lambda - 1);
 // dydt(3)  = koff * ( (Cai/ca50)^TRPN_n * (1-TRPN) - TRPN);
-ALGEBRAIC[ca50] = ALGEBRAIC[ca50] + CONSTANTS[beta_1] * fmin(0.2, CONSTANTS[lambda] - 1);
+ALGEBRAIC[ca50] = ALGEBRAIC[ca50] + CONSTANTS[beta_1] * check_min(0.2, CONSTANTS[lambda] - 1);
 RATES[TRPN] = CONSTANTS[koff] * (pow((CONSTANTS[Cai] / ALGEBRAIC[ca50]), CONSTANTS[TRPN_n]) * (1 - STATES[TRPN]) - STATES[TRPN]);
 
 // XSSS = dr * 0.5;
@@ -181,7 +198,7 @@ ALGEBRAIC[XWSS] = (1 - CONSTANTS[dr]) * CONSTANTS[wfrac] * 0.5;
 ALGEBRAIC[ktm_block]= CONSTANTS[ktm_unblock] * (pow(CONSTANTS[perm50], CONSTANTS[nperm]) * 0.5) / (0.5 - ALGEBRAIC[XSSS] - ALGEBRAIC[XWSS]);
 
 // dydt(4)  = ktm_block * min(100, (TRPN^-(nperm/2))) * XU  - ktm_unblock * (TRPN^(nperm/2)) *  TmBlocked;
-RATES[TmBlocked] = CONSTANTS[ktm_block] * fmin(100, pow(STATES[TRPN], -(CONSTANTS[nperm] / 2))) * ALGEBRAIC[XU] - CONSTANTS[ktm_unblock]  * pow(STATES[TRPN], (CONSTANTS[nperm] / 2)) * STATES[TmBlocked];
+RATES[TmBlocked] = CONSTANTS[ktm_block] * check_min(100, pow(STATES[TRPN], -(CONSTANTS[nperm] / 2))) * ALGEBRAIC[XU] - CONSTANTS[ktm_unblock]  * pow(STATES[TRPN], (CONSTANTS[nperm] / 2)) * STATES[TmBlocked];
 //-------------------------------------------------------------------------------
 // Velocity dependence -- assumes distortion resets on W->S
 // dydt(5) = A * dlambda_dt - cds * ZETAS;% - gamma_rate * ZETAS;
