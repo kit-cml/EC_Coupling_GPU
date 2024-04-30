@@ -249,7 +249,6 @@ ALGEBRAIC[Tp] = CONSTANTS[land_a] * (ALGEBRAIC[F1] + ALGEBRAIC[Fd]);
 // T = Ta + Tp;
 ALGEBRAIC[Ta] = ALGEBRAIC[Lfac] * (CONSTANTS[Tref] / CONSTANTS[dr]) * ( (STATES[ZETAS] + 1) * STATES[XS] + (STATES[ZETAW]) * STATES[XW]);
 ALGEBRAIC[land_T] = ALGEBRAIC[Ta] + ALGEBRAIC[Tp];
-
 }
 
 __device__ void land_solveEuler(

@@ -1,7 +1,7 @@
 #ifndef EN_OHARA_RUDY_2011_HPP
 #define EN_OHARA_RUDY_2011_HPP
 
-enum E_ALGEBRAIC_T{
+enum ALGEBRAIC{
   vffrt = 29,
   vfrt = 39,
   INa = 62,
@@ -204,7 +204,7 @@ enum E_ALGEBRAIC_T{
   step_high = 197,
 };
 
-enum E_CONSTANTS_T{
+enum CONSTANTS{
   celltype = 0,
   nao = 1,
   cao = 2,
@@ -358,7 +358,7 @@ enum E_CONSTANTS_T{
 
 };
 
-enum E_STATES_T{
+enum STATES{
   V = 0,
   CaMKt = 1,
   cass = 2,
@@ -400,6 +400,7 @@ enum E_STATES_T{
   xk1 = 38,
   Jrelnp = 39,
   Jrelp = 40,
+  ca_trpn = 41,
 };
 
 #endif

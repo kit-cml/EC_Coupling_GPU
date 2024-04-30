@@ -439,7 +439,7 @@ __device__ void ___initConsts(double *CONSTANTS, double *STATES, double type, in
 {
 
 int num_of_constants = 146;
-int num_of_states = 41;
+int num_of_states = 42;
 // printf("%d\n", offset);
 CONSTANTS[(offset * num_of_constants) + nao] = 140;
 CONSTANTS[(offset * num_of_constants) + cao] = 1.8;
@@ -720,12 +720,12 @@ __device__ void ord_initConsts(double *CONSTANTS, double *STATES, double type, d
 
 
 
-__device__ void ord_computeRates( double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, int offset )
+__device__ void ord_computeRates( double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, int offset, double land_trpn )
 {
 int num_of_constants = 146; //done
-int num_of_states = 41; //done
+int num_of_states = 42; //done
 int num_of_algebraic = 199; //done
-int num_of_rates = 41; //done
+int num_of_rates = 42; //done
 
 ALGEBRAIC[(offset * num_of_algebraic) +Istim] = (TIME>=CONSTANTS[(offset * num_of_constants) + stim_start] && (TIME - CONSTANTS[(offset * num_of_constants) + stim_start]) - floor((TIME - CONSTANTS[(offset * num_of_constants) + stim_start])/CONSTANTS[(offset * num_of_constants) + BCL])*CONSTANTS[(offset * num_of_constants) + BCL]<=CONSTANTS[(offset * num_of_constants) + duration] ? CONSTANTS[(offset * num_of_constants) + amp] : 0.000000);
 ALGEBRAIC[(offset * num_of_algebraic) +hLss] = 1.00000/(1.00000+exp((STATES[(offset * num_of_states) + V]+87.6100)/7.48800));
@@ -964,7 +964,9 @@ RATES[(offset * num_of_rates) + nai] = ( - (ALGEBRAIC[(offset * num_of_algebraic
 RATES[(offset * num_of_rates) + nass] = ( - (ALGEBRAIC[(offset * num_of_algebraic) + ICaNa]+ 3.00000*ALGEBRAIC[(offset * num_of_algebraic) + INaCa_ss])*CONSTANTS[(offset * num_of_constants) + cm]*CONSTANTS[(offset * num_of_constants) + Acap])/( CONSTANTS[(offset * num_of_constants) + F]*CONSTANTS[(offset * num_of_constants) + vss]) - ALGEBRAIC[(offset * num_of_algebraic) + JdiffNa];
 RATES[(offset * num_of_rates) + V] = - (ALGEBRAIC[(offset * num_of_algebraic) + INa]+ALGEBRAIC[(offset * num_of_algebraic) + INaL]+ALGEBRAIC[(offset * num_of_algebraic) +  Ito]+ALGEBRAIC[(offset * num_of_algebraic) +  ICaL]+ALGEBRAIC[(offset * num_of_algebraic) +  ICaNa]+ALGEBRAIC[(offset * num_of_algebraic) + ICaK]+ALGEBRAIC[(offset * num_of_algebraic) + IKr]+ALGEBRAIC[(offset * num_of_algebraic) + IKs]+ALGEBRAIC[(offset * num_of_algebraic) + IK1]+ALGEBRAIC[(offset * num_of_algebraic) + INaCa_i]+ALGEBRAIC[(offset * num_of_algebraic) + INaCa_ss]+ALGEBRAIC[(offset * num_of_algebraic) + INaK]+ALGEBRAIC[(offset * num_of_algebraic) + INab]+ALGEBRAIC[(offset * num_of_algebraic) + IKb]+ALGEBRAIC[(offset * num_of_algebraic) + IpCa]+ALGEBRAIC[(offset * num_of_algebraic) + ICab]+ALGEBRAIC[(offset * num_of_algebraic) + Istim]);
 RATES[(offset * num_of_rates) + cass] =  ALGEBRAIC[(offset * num_of_algebraic) + Bcass]*((( - (ALGEBRAIC[(offset * num_of_algebraic) + ICaL] -  2.00000*ALGEBRAIC[(offset * num_of_algebraic) + INaCa_ss])*CONSTANTS[(offset * num_of_constants) + cm]*CONSTANTS[(offset * num_of_constants) + Acap])/( 2.00000*CONSTANTS[(offset * num_of_constants) + F]*CONSTANTS[(offset * num_of_constants) + vss])+( ALGEBRAIC[(offset * num_of_algebraic) + Jrel]*CONSTANTS[(offset * num_of_constants) + vjsr])/CONSTANTS[(offset * num_of_constants) + vss]) - ALGEBRAIC[(offset * num_of_algebraic) + Jdiff]);
-RATES[(offset * num_of_rates) + cai] =  ALGEBRAIC[(offset * num_of_algebraic) + Bcai]*((( - ((ALGEBRAIC[(offset * num_of_algebraic) + IpCa]+ALGEBRAIC[(offset * num_of_algebraic) + ICab]) -  2.00000*ALGEBRAIC[(offset * num_of_algebraic) + INaCa_i])*CONSTANTS[(offset * num_of_constants) + cm]*CONSTANTS[(offset * num_of_constants) + Acap])/( 2.00000*CONSTANTS[(offset * num_of_constants) + F]*CONSTANTS[(offset * num_of_constants) + vmyo]) - ( ALGEBRAIC[(offset * num_of_algebraic) + Jup]*CONSTANTS[(offset * num_of_constants) + vnsr])/CONSTANTS[(offset * num_of_constants) + vmyo])+( ALGEBRAIC[(offset * num_of_algebraic) + Jdiff]*CONSTANTS[(offset * num_of_constants) + vss])/CONSTANTS[(offset * num_of_constants) + vmyo]);
+//new
+RATES[(offset * num_of_rates) + ca_trpn] = CONSTANTS[(offset * num_of_constants) + trpnmax] * land_trpn;
+RATES[(offset * num_of_rates) + cai] =  ALGEBRAIC[(offset * num_of_algebraic) + Bcai]*((( - ((ALGEBRAIC[(offset * num_of_algebraic) + IpCa]+ALGEBRAIC[(offset * num_of_algebraic) + ICab]) -  2.00000*ALGEBRAIC[(offset * num_of_algebraic) + INaCa_i])*CONSTANTS[(offset * num_of_constants) + cm]*CONSTANTS[(offset * num_of_constants) + Acap])/( 2.00000*CONSTANTS[(offset * num_of_constants) + F]*CONSTANTS[(offset * num_of_constants) + vmyo]) - ( ALGEBRAIC[(offset * num_of_algebraic) + Jup]*CONSTANTS[(offset * num_of_constants) + vnsr])/CONSTANTS[(offset * num_of_constants) + vmyo])+( ALGEBRAIC[(offset * num_of_algebraic) + Jdiff]*CONSTANTS[(offset * num_of_constants) + vss])/CONSTANTS[(offset * num_of_constants) + vmyo] - RATES[(offset * num_of_rates) + ca_trpn]); //modified
 RATES[(offset * num_of_rates) + cansr] = ALGEBRAIC[(offset * num_of_algebraic) + Jup] - ( ALGEBRAIC[(offset * num_of_algebraic) + Jtr]*CONSTANTS[(offset * num_of_constants) + vjsr])/CONSTANTS[(offset * num_of_constants) + vnsr];
 RATES[(offset * num_of_rates) + cajsr] =  ALGEBRAIC[(offset * num_of_algebraic) + Bcajsr]*(ALGEBRAIC[(offset * num_of_algebraic) + Jtr] - ALGEBRAIC[(offset * num_of_algebraic) + Jrel]);
 }
@@ -972,9 +974,9 @@ RATES[(offset * num_of_rates) + cajsr] =  ALGEBRAIC[(offset * num_of_algebraic) 
 __device__ void ord_solveAnalytical(double *CONSTANTS, double *STATES, double *ALGEBRAIC, double *RATES, double dt, int offset)
 {
   int num_of_constants = 146;
-  int num_of_states = 41;
+  int num_of_states = 42;
   int num_of_algebraic = 199;
-  int num_of_rates = 41;
+  int num_of_rates = 42;
   
 // #ifdef EULER
 //   STATES[V] = STATES[V] + RATES[V] * dt;
@@ -1102,7 +1104,7 @@ __device__ double ord_set_time_step(
   int offset) {
   double time_step = 0.005;
   int num_of_constants = 146;
-  int num_of_rates = 41;
+  int num_of_rates = 42;
 
   if (TIME <= time_point || (TIME - floor(TIME / CONSTANTS[BCL + (offset * num_of_constants)]) * CONSTANTS[BCL + (offset * num_of_constants)]) <= time_point) {
     //printf("TIME <= time_point ms\n");

@@ -35,7 +35,7 @@ public:
   
   virtual void computeRates() = 0;
   virtual void ord_computeRates(double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, int offset){}
-  virtual void computeRates(double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, double land_trpn){}
+  // virtual void computeRates(double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, double land_trpn){}
   virtual void land_computeRates(double TIME, double *CONSTANTS, double *RATES, double *STATES, double *ALGEBRAIC, double *y){}
 
   // virtual void solveAnalytical() = 0;

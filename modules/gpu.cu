@@ -39,7 +39,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
 
 
     // INIT STARTS
-
+    double y[7] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0};
     temp_result[sample_id].qnet = 0.;
     temp_result[sample_id].inal_auc = 0.;
     temp_result[sample_id].ical_auc = 0.;
@@ -76,7 +76,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
     bool is_peak = false;
     // to search max dvmdt repol
 
-    double y[7] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0};
+    // double y[7] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0};
 
     tcurr[sample_id] = 0.000001;
     dt[sample_id] = p_param->dt;
@@ -165,7 +165,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
 
     while (tcurr[sample_id]<tmax)
     {
-        ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id); 
+        ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_RATES[TRPN]); 
         land_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, y);
 
         dt_set = ord_set_time_step( tcurr[sample_id], time_point, max_time_step, 
@@ -492,7 +492,7 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
 
 
     // INIT STARTS
-    
+    double y[7] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0};
     temp_result[sample_id].qnet = 0.;
     temp_result[sample_id].inal_auc = 0.;
     temp_result[sample_id].ical_auc = 0.;
@@ -599,7 +599,8 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
 	  // static const int CURRENT_SCALING = 1000;
 
     // printf("Core %d:\n",sample_id);
-    initConsts(d_CONSTANTS, d_STATES, type, conc, d_ic50, d_cvar, dutta, p_param->is_cvar, sample_id);
+    ord_initConsts(d_CONSTANTS, d_STATES, type, conc, d_ic50, d_cvar, p_param->is_dutta, p_param->is_cvar, sample_id);
+    land_initConsts(false, false, y, d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id);
 
     // starting from initial value, to make things simpler for now, we're just going to replace what initConst has done 
     // to the d_STATES and bring them back to cached initial values:
@@ -633,7 +634,7 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
 
 
     // printf("%d: %lf, %d\n", sample_id,d_STATES[V + (sample_id * num_of_states)], cnt);
-    applyDrugEffect(d_CONSTANTS, conc, d_ic50, epsilon, sample_id);
+    ord_applyDrugEffect(d_CONSTANTS, conc, d_ic50, epsilon, sample_id);
 
     d_CONSTANTS[BCL + (sample_id * num_of_constants)] = bcl;
 
@@ -648,9 +649,10 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
 
     while (tcurr[sample_id]<tmax)
     {
-        computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id); 
+        ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_RATES[TRPN]); 
+        land_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, y);
         
-        dt_set = set_time_step( tcurr[sample_id], time_point, max_time_step, 
+        dt_set = ord_set_time_step( tcurr[sample_id], time_point, max_time_step, 
         d_CONSTANTS, 
         d_RATES, 
         d_STATES, 
@@ -762,7 +764,9 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
           // writen = false;
         }
         
-        solveAnalytical(d_CONSTANTS, d_STATES, d_ALGEBRAIC, d_RATES,  dt[sample_id], sample_id);
+        ord_solveAnalytical(d_CONSTANTS, d_STATES, d_ALGEBRAIC, d_RATES,  dt[sample_id], sample_id);
+        land_solveEuler(dt[sample_id], tcurr[sample_id],d_STATES[cai]*1000., d_CONSTANTS, d_RATES, d_STATES, sample_id);
+        
         if( temp_result[sample_id].dvmdt_max < d_RATES[(sample_id * num_of_states)+V] )temp_result[sample_id].dvmdt_max = d_RATES[(sample_id * num_of_states)+V];
           
           // this part should be
