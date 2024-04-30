@@ -168,12 +168,14 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
         ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_RATES[TRPN]); 
         land_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, y);
 
-        dt_set = ord_set_time_step( tcurr[sample_id], time_point, max_time_step, 
-        d_CONSTANTS, 
-        d_RATES, 
-        d_STATES, 
-        d_ALGEBRAIC, 
-        sample_id); 
+        // dt_set = ord_set_time_step( tcurr[sample_id], time_point, max_time_step, 
+        // d_CONSTANTS, 
+        // d_RATES, 
+        // d_STATES, 
+        // d_ALGEBRAIC, 
+        // sample_id); 
+        // or
+        dt_set = tcurr[sample_id];
         
         // printf("tcurr at core %d: %lf\n",sample_id,tcurr[sample_id]);
         if (floor((tcurr[sample_id] + dt_set) / bcl) == floor(tcurr[sample_id] / bcl)) { 
