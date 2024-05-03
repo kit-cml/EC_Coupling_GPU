@@ -19,6 +19,7 @@ differences are related to GPU offset calculations
 
 __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONSTANTS, double *d_STATES, double *d_RATES, double *d_ALGEBRAIC, 
                                         double *d_STATES_RESULT, double *d_all_states,
+                                        double *m_CONSTANTS, double *m_STATES, double *m_RATES, double *m_ALGEBRAIC, 
                                       //  double *time, double *states, double *out_dt,  double *cai_result, 
                                       //  double *ina, double *inal,
                                       //  double *ical, double *ito,
@@ -146,7 +147,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
 
     // printf("Core %d:\n",sample_id);
     ord_initConsts(d_CONSTANTS, d_STATES, type, conc, d_ic50, d_cvar, p_param->is_dutta, p_param->is_cvar, sample_id);
-    land_initConsts(false, false, y, d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id);
+    land_initConsts(false, false, y, m_CONSTANTS, m_RATES, m_STATES, m_ALGEBRAIC, sample_id);
 
     // on progress from here
 
@@ -166,7 +167,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
     while (tcurr[sample_id]<tmax)
     {
         ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_RATES[TRPN]); 
-        land_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, y);
+        land_computeRates(tcurr[sample_id], m_CONSTANTS, m_RATES, m_STATES, m_ALGEBRAIC, y, sample_id);
 
         // dt_set = ord_set_time_step( tcurr[sample_id], time_point, max_time_step, 
         // d_CONSTANTS, 
@@ -309,7 +310,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
         // //// progress bar ends ////
 
         ord_solveAnalytical(d_CONSTANTS, d_STATES, d_ALGEBRAIC, d_RATES,  dt[sample_id], sample_id);
-        land_solveEuler(dt[sample_id], tcurr[sample_id],d_STATES[cai]*1000., d_CONSTANTS, d_RATES, d_STATES, sample_id);
+        land_solveEuler(dt[sample_id], tcurr[sample_id],d_STATES[cai]*1000., m_CONSTANTS, m_RATES, m_STATES, sample_id);
 
         // tcurr[sample_id] = tcurr[sample_id] + dt[sample_id];
         // __syncthreads();
@@ -474,7 +475,8 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
 
 
 __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *d_CONSTANTS, double *d_STATES, double *d_STATES_cache, double *d_RATES, double *d_ALGEBRAIC, 
-                                       double *time, double *states, double *out_dt,  double *cai_result, 
+                                       double *time, double *states, double *out_dt,  double *cai_result,
+                                       double *m_CONSTANTS, double *m_STATES, double *m_RATES, double *m_ALGEBRAIC,  
                                        double *ina, double *inal,
                                        double *ical, double *ito,
                                        double *ikr, double *iks, 
@@ -652,7 +654,7 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
     while (tcurr[sample_id]<tmax)
     {
         ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_RATES[TRPN]); 
-        land_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, y);
+        land_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, y, sample_id);
         
         dt_set = ord_set_time_step( tcurr[sample_id], time_point, max_time_step, 
         d_CONSTANTS, 
@@ -966,6 +968,7 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
 
 __global__ void kernel_DrugSimulation(double *d_ic50, double *d_cvar, double *d_CONSTANTS, double *d_STATES, double *d_STATES_cache, double *d_RATES, double *d_ALGEBRAIC, 
                                       double *d_STATES_RESULT, double *d_all_states,
+                                      double *m_CONSTANTS, double *m_STATES, double *m_RATES, double *m_ALGEBRAIC, 
                                       double *time, double *states, double *out_dt,  double *cai_result, 
                                       double *ina, double *inal, 
                                       double *ical, double *ito,
@@ -987,6 +990,7 @@ __global__ void kernel_DrugSimulation(double *d_ic50, double *d_cvar, double *d_
     // printf("Calculating %d\n",thread_id);
     kernel_DoDrugSim(d_ic50, d_cvar, d_CONSTANTS, d_STATES, d_RATES, d_ALGEBRAIC, 
                           d_STATES_RESULT, d_all_states,
+                          m_CONSTANTS, m_STATES, m_RATES, m_ALGEBRAIC, 
                           // time, states, out_dt, cai_result,
                           // ina, inal, 
                           // ical, ito,
@@ -1002,6 +1006,7 @@ __global__ void kernel_DrugSimulation(double *d_ic50, double *d_cvar, double *d_
     {
       kernel_DoDrugSim_single(d_ic50, d_cvar, d_CONSTANTS, d_STATES, d_STATES_cache, d_RATES, d_ALGEBRAIC,
                           time, states, out_dt, cai_result,
+                          m_CONSTANTS, m_STATES, m_RATES, m_ALGEBRAIC, 
                           ina, inal, 
                           ical, ito,
                           ikr, iks, 

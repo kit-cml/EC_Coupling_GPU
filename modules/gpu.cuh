@@ -6,6 +6,7 @@
 
 __global__ void kernel_DrugSimulation(double *d_ic50, double *d_cvar, double *d_CONSTANTS, double *d_STATES, double *d_STATES_cache, double *d_RATES, double *d_ALGEBRAIC, 
                                       double *d_STATES_RESULT, double *d_all_states,
+                                      double *m_CONSTANTS, double *m_STATES, double *m_RATES, double *m_ALGEBRAIC, 
                                       double *time, double *states, double *out_dt,  double *cai_result, 
                                       double *ina, double *inal, 
                                       double *ical, double *ito,
@@ -18,6 +19,7 @@ __global__ void kernel_DrugSimulation(double *d_ic50, double *d_cvar, double *d_
 
 __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONSTANTS, double *d_STATES, double *d_RATES, double *d_ALGEBRAIC, 
                                         double *d_STATES_RESULT, double *d_all_states,
+                                        double *m_CONSTANTS, double *m_STATES, double *m_RATES, double *m_ALGEBRAIC, 
                                     //    double *time, double *states, double *out_dt,  double *cai_result, 
                                     //    double *ina, double *inal,
                                     //    double *ical, double *ito,
@@ -30,6 +32,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
 
 __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *d_CONSTANTS, double *d_STATES, double *d_STATES_cache, double *d_RATES, double *d_ALGEBRAIC, 
                                        double *time, double *states, double *out_dt,  double *cai_result, 
+                                       double *m_CONSTANTS, double *m_STATES, double *m_RATES, double *m_ALGEBRAIC, 
                                        double *ina, double *inal,
                                        double *ical, double *ito,
                                        double *ikr, double *iks, 

@@ -62,7 +62,7 @@ __device__ void land_initConsts(
     //     return;
     // }
 
-if (CONSTANTS[(offset *  num_of_constants) + lambda]] >= 1.2){
+if (CONSTANTS[(offset *  num_of_constants) + lambda] >= 1.2){
     CONSTANTS[(offset *  num_of_constants) + lambda] = 1.2;
 }
     CONSTANTS[(offset *  num_of_constants) + perm50] = 0.35;
