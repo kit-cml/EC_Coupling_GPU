@@ -624,13 +624,23 @@ int main(int argc, char **argv)
     printf("In-silico mode, creating cache file because we don't have that yet, or is_time_series is intentionally false \n\n");
     double *d_ic50;
     double *d_cvar;
-    double *d_ALGEBRAIC;
-    double *d_CONSTANTS;
-    double *d_RATES;
-    double *d_STATES;
+    
+    double *e_ALGEBRAIC;
+    double *e_CONSTANTS;
+    double *e_RATES;
+    double *e_STATES;
+    double *e_STATES_cache;
 
-    // not used, only to satisfy the parameters of the GPU regulator's function
-    double *d_STATES_cache;
+    double *m_ALGEBRAIC;
+    double *m_CONSTANTS;
+    double *m_RATES;
+    double *m_STATES;
+    // double *e_STATES_cache;
+
+    // actually not used but for now, this is only for satisfiying the GPU regulator parameters
+    double *e_STATES_RESULT;
+    // double *e_all_states;
+
     double *time;
     double *dt;
     double *states;
@@ -643,7 +653,7 @@ int main(int argc, char **argv)
     double *iks;
     double *ik1;
 
-    double *d_STATES_RESULT;
+    // double *d_STATES_RESULT;
     double *d_all_states;
 
     cipa_t *temp_result, *cipa_result;
@@ -667,10 +677,16 @@ int main(int argc, char **argv)
       printf("Reading: %d Conductance Variability samples\n",cvar_sample);
     }
 
-    cudaMalloc(&d_ALGEBRAIC, num_of_algebraic * sample_size * sizeof(double));
-    cudaMalloc(&d_CONSTANTS, num_of_constants * sample_size * sizeof(double));
-    cudaMalloc(&d_RATES, num_of_rates * sample_size * sizeof(double));
-    cudaMalloc(&d_STATES, num_of_states * sample_size * sizeof(double));
+    cudaMalloc(&e_ALGEBRAIC, num_of_algebraic * sample_size * sizeof(double));
+    cudaMalloc(&e_CONSTANTS, num_of_constants * sample_size * sizeof(double));
+    cudaMalloc(&e_RATES, num_of_rates * sample_size * sizeof(double));
+    cudaMalloc(&e_STATES, num_of_states * sample_size * sizeof(double));
+    cudaMalloc(&e_STATES_cache, (num_of_states+2) * sample_size * sizeof(double));
+    cudaMalloc(&m_ALGEBRAIC, num_of_algebraic * sample_size * sizeof(double));
+    cudaMalloc(&m_CONSTANTS, num_of_constants * sample_size * sizeof(double));
+    cudaMalloc(&m_RATES, num_of_rates * sample_size * sizeof(double));
+    cudaMalloc(&m_STATES, num_of_states * sample_size * sizeof(double));
+
 
     cudaMalloc(&d_p_param,  sizeof(param_t));
 
@@ -678,7 +694,7 @@ int main(int argc, char **argv)
     cudaMalloc(&temp_result, sample_size * sizeof(cipa_t));
     cudaMalloc(&cipa_result, sample_size * sizeof(cipa_t));
 
-    cudaMalloc(&d_STATES_RESULT, (num_of_states+1) * sample_size * sizeof(double)); // for cache file
+    cudaMalloc(&e_STATES_RESULT, (num_of_states+1) * sample_size * sizeof(double)); // for cache file
     cudaMalloc(&d_all_states, num_of_states * sample_size * p_param->find_steepest_start * sizeof(double)); // for each sample 
 
     printf("Copying sample files to GPU memory space \n");
@@ -716,8 +732,9 @@ int main(int argc, char **argv)
     // initscr();
     // printf("[____________________________________________________________________________________________________]  0.00 %% \n");
 
-    kernel_DrugSimulation<<<block,thread>>>(d_ic50, d_cvar, d_CONSTANTS, d_STATES, d_STATES_cache, d_RATES, d_ALGEBRAIC, 
-                                              d_STATES_RESULT, d_all_states,
+    kernel_DrugSimulation<<<block,thread>>>(d_ic50, d_cvar, e_CONSTANTS, e_STATES, e_STATES_cache, e_RATES, e_ALGEBRAIC, 
+                                              e_STATES_RESULT, d_all_states,
+                                              m_CONSTANTS, m_STATES, m_RATES, m_ALGEBRAIC, 
                                               time, states, dt, cai_result,
                                               ina, inal, 
                                               ical, ito,
@@ -746,7 +763,7 @@ int main(int argc, char **argv)
     printf("copying the data back to the CPU \n");
 
     cudaMemcpy(h_cipa_result, cipa_result, sample_size * sizeof(cipa_t), cudaMemcpyDeviceToHost);
-    cudaMemcpy(h_states, d_STATES_RESULT, sample_size * (num_of_states+1) *  sizeof(double), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_states, e_STATES_RESULT, sample_size * (num_of_states+1) *  sizeof(double), cudaMemcpyDeviceToHost);
     cudaMemcpy(h_all_states, d_all_states, (num_of_states) * sample_size  * p_param->find_steepest_start  *  sizeof(double), cudaMemcpyDeviceToHost);
 
     FILE *writer;

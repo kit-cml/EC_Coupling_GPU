@@ -169,14 +169,14 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
         ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_RATES[TRPN]); 
         land_computeRates(tcurr[sample_id], m_CONSTANTS, m_RATES, m_STATES, m_ALGEBRAIC, y, sample_id);
 
-        // dt_set = ord_set_time_step( tcurr[sample_id], time_point, max_time_step, 
-        // d_CONSTANTS, 
-        // d_RATES, 
-        // d_STATES, 
-        // d_ALGEBRAIC, 
-        // sample_id); 
+        dt_set = ord_set_time_step( tcurr[sample_id], time_point, max_time_step, 
+        d_CONSTANTS, 
+        d_RATES, 
+        d_STATES, 
+        d_ALGEBRAIC, 
+        sample_id); 
         // or
-        dt_set = tcurr[sample_id];
+        // dt_set = dt[sample_id];
         
         // printf("tcurr at core %d: %lf\n",sample_id,tcurr[sample_id]);
         if (floor((tcurr[sample_id] + dt_set) / bcl) == floor(tcurr[sample_id] / bcl)) { 
@@ -185,7 +185,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
           // it goes in here, but it does not, you know, adds the pace, 
         }
         else{
-          dt[sample_id] = (floor(tcurr[sample_id] / bcl) + 1) * bcl - tcurr[sample_id];
+          // dt[sample_id] = (floor(tcurr[sample_id] / bcl) + 1) * bcl - tcurr[sample_id];
 
           // new part starts
           /// only available in single mode!
@@ -604,7 +604,7 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
 
     // printf("Core %d:\n",sample_id);
     ord_initConsts(d_CONSTANTS, d_STATES, type, conc, d_ic50, d_cvar, p_param->is_dutta, p_param->is_cvar, sample_id);
-    land_initConsts(false, false, y, d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id);
+    land_initConsts(false, false, y, m_CONSTANTS, m_RATES, m_STATES, m_ALGEBRAIC, sample_id);
 
     // starting from initial value, to make things simpler for now, we're just going to replace what initConst has done 
     // to the d_STATES and bring them back to cached initial values:
@@ -653,8 +653,8 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
 
     while (tcurr[sample_id]<tmax)
     {
-        ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_RATES[TRPN]); 
-        land_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, y, sample_id);
+        ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, m_RATES[TRPN]); 
+        land_computeRates(tcurr[sample_id], m_CONSTANTS, m_RATES, m_STATES, m_ALGEBRAIC, y, sample_id);
         
         dt_set = ord_set_time_step( tcurr[sample_id], time_point, max_time_step, 
         d_CONSTANTS, 
@@ -662,6 +662,7 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
         d_STATES, 
         d_ALGEBRAIC, 
         sample_id); 
+        dt_set = dt[sample_id];
 
         if(d_STATES[(sample_id * num_of_states)+V] > inet_vm_threshold){
           inet += (d_ALGEBRAIC[(sample_id * num_of_algebraic) +INaL]+d_ALGEBRAIC[(sample_id * num_of_algebraic) +ICaL]+d_ALGEBRAIC[(sample_id * num_of_algebraic) +Ito]+d_ALGEBRAIC[(sample_id * num_of_algebraic) +IKr]+d_ALGEBRAIC[(sample_id * num_of_algebraic) +IKs]+d_ALGEBRAIC[(sample_id * num_of_algebraic) +IK1])*dt[sample_id];
@@ -688,7 +689,7 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
           dt[sample_id] = dt_set;
         }
         else{
-          dt[sample_id] = (floor(tcurr[sample_id] / bcl) + 1) * bcl - tcurr[sample_id];
+          // dt[sample_id] = (floor(tcurr[sample_id] / bcl) + 1) * bcl - tcurr[sample_id];
 
           // new part starts
               // execute at the beginning of a pace
@@ -769,7 +770,7 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
         }
         
         ord_solveAnalytical(d_CONSTANTS, d_STATES, d_ALGEBRAIC, d_RATES,  dt[sample_id], sample_id);
-        land_solveEuler(dt[sample_id], tcurr[sample_id],d_STATES[cai]*1000., d_CONSTANTS, d_RATES, d_STATES, sample_id);
+        land_solveEuler(dt[sample_id], tcurr[sample_id],d_STATES[cai]*1000., m_CONSTANTS, m_RATES, m_STATES, sample_id);
         
         if( temp_result[sample_id].dvmdt_max < d_RATES[(sample_id * num_of_states)+V] )temp_result[sample_id].dvmdt_max = d_RATES[(sample_id * num_of_states)+V];
           

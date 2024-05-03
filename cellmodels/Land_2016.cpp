@@ -269,7 +269,6 @@ __device__ void land_solveEuler(
 
     int num_of_constants = 29;
     int num_of_states = 7;
-    int num_of_algebraic = 24;
     int num_of_rates = 7;
 
     CONSTANTS[(offset *  num_of_constants) + Cai] = Cai_input;
