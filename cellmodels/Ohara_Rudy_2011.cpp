@@ -1093,8 +1093,7 @@ __device__ void ord_solveAnalytical(double *CONSTANTS, double *STATES, double *A
 // #endif
 }
 
-__device__ double ord_set_time_step(
-  double TIME,
+__device__ double ord_set_time_step(double TIME,
   double time_point,
   double max_time_step,
   double *CONSTANTS,
@@ -1107,12 +1106,12 @@ __device__ double ord_set_time_step(
   int num_of_rates = 42;
 
   if (TIME <= time_point || (TIME - floor(TIME / CONSTANTS[BCL + (offset * num_of_constants)]) * CONSTANTS[BCL + (offset * num_of_constants)]) <= time_point) {
-    //printf("TIME <= time_point ms\n");
+    // printf("TIME <= time_point ms\n");
     return time_step;
-    //printf("dV = %lf, time_step = %lf\n",RATES[V] * time_step, time_step);
+    // printf("dV = %lf, time_step = %lf\n",RATES[V] * time_step, time_step);
   }
   else {
-    //printf("TIME > time_point ms\n");
+    // printf("TIME > time_point ms\n");
     if (std::abs(RATES[V + (offset * num_of_rates)] * time_step) <= 0.2) {//Slow changes in V
         // printf("dV/dt <= 0.2\n");
         time_step = std::abs(0.8 / RATES[V + (offset * num_of_rates)]);
@@ -1123,10 +1122,12 @@ __device__ double ord_set_time_step(
         else if (time_step > max_time_step) {
             time_step = max_time_step;
         }
-        //printf("dV = %lf, time_step = %lf\n",std::abs(RATES[V] * time_step), time_step);
+        if(offset == 1000){
+            printf("dV = %lf, time_step = %lf\n",std::abs(RATES[V + (offset * num_of_rates)] * time_step), time_step); // never hit this
+        }
     }
     else if (std::abs(RATES[V + (offset * num_of_rates)] * time_step) >= 0.8) {//Fast changes in V
-        // printf("dV/dt >= 0.8\n");
+        printf("dV/dt >= 0.8\n");
         time_step = std::abs(0.2 / RATES[V + (offset * num_of_rates)]);
         while (std::abs(RATES[V + (offset * num_of_rates)]  * time_step) >= 0.8 &&
                0.005 < time_step &&
