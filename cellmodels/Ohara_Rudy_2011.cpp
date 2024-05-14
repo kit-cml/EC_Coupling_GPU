@@ -1106,14 +1106,16 @@ __device__ double ord_set_time_step(double TIME,
   int num_of_rates = 42;
 
   if (TIME <= time_point || (TIME - floor(TIME / CONSTANTS[BCL + (offset * num_of_constants)]) * CONSTANTS[BCL + (offset * num_of_constants)]) <= time_point) {
-    // printf("TIME <= time_point ms\n");
+    printf("%lf <= time_point ms\n",TIME);
     return time_step;
-    // printf("dV = %lf, time_step = %lf\n",RATES[V] * time_step, time_step);
+    printf("dV = %lf\n, time_step = %lf\n",RATES[V] * time_step, time_step);
+    printf("%d\n",std::abs(RATES[V + (offset * num_of_rates)] * time_step));
   }
   else {
     // printf("TIME > time_point ms\n");
     if (std::abs(RATES[V + (offset * num_of_rates)] * time_step) <= 0.2) {//Slow changes in V
-        // printf("dV/dt <= 0.2\n");
+        // More algebra
+        printf("dV/dt <= 0.2\n");
         time_step = std::abs(0.8 / RATES[V + (offset * num_of_rates)]);
         //Make sure time_step is between 0.005 and max_time_step
         if (time_step < 0.005) {
