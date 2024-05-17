@@ -33,10 +33,15 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
     
     unsigned long long input_counter = 0;
 
-    int num_of_constants = 146;
-    int num_of_states = 41;
-    int num_of_algebraic = 199;
-    int num_of_rates = 41;
+    int e_num_of_constants = 146;
+    int e_num_of_states = 41;
+    int e_num_of_algebraic = 199;
+    int e_num_of_rates = 41;
+
+    int m_num_of_constants = 29;
+    // int m_num_of_states = 7;
+    // int m_num_of_algebraic = 24;
+    int m_num_of_rates = 7;
 
 
     // INIT STARTS
@@ -47,12 +52,12 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
     temp_result[sample_id].dvmdt_repol = -999;
     temp_result[sample_id].dvmdt_max = -999;
     temp_result[sample_id].vm_peak = -999;
-    temp_result[sample_id].vm_valley = d_STATES[(sample_id * num_of_states) +V];
+    temp_result[sample_id].vm_valley = d_STATES[(sample_id * e_num_of_states) +V];
     temp_result[sample_id].vm_dia = -999;
     temp_result[sample_id].apd90 = 0.;
     temp_result[sample_id].apd50 = 0.;
     temp_result[sample_id].ca_peak = -999;
-    temp_result[sample_id].ca_valley = d_STATES[(sample_id * num_of_states) +cai];
+    temp_result[sample_id].ca_valley = d_STATES[(sample_id * e_num_of_states) +cai];
     temp_result[sample_id].ca_dia = -999;
     temp_result[sample_id].cad90 = 0.;
     temp_result[sample_id].cad50 = 0.;
@@ -63,12 +68,12 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
     cipa_result[sample_id].dvmdt_repol = -999;
     cipa_result[sample_id].dvmdt_max = -999;
     cipa_result[sample_id].vm_peak = -999;
-    cipa_result[sample_id].vm_valley = d_STATES[(sample_id * num_of_states) +V];
+    cipa_result[sample_id].vm_valley = d_STATES[(sample_id * e_num_of_states) +V];
     cipa_result[sample_id].vm_dia = -999;
     cipa_result[sample_id].apd90 = 0.;
     cipa_result[sample_id].apd50 = 0.;
     cipa_result[sample_id].ca_peak = -999;
-    cipa_result[sample_id].ca_valley = d_STATES[(sample_id * num_of_states) +cai];
+    cipa_result[sample_id].ca_valley = d_STATES[(sample_id * e_num_of_states) +cai];
     cipa_result[sample_id].ca_dia = -999;
     cipa_result[sample_id].cad90 = 0.;
     cipa_result[sample_id].cad50 = 0.;
@@ -160,7 +165,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
 
     ord_applyDrugEffect(d_CONSTANTS, conc, d_ic50, epsilon, sample_id);
 
-    d_CONSTANTS[BCL + (sample_id * num_of_constants)] = bcl;
+    d_CONSTANTS[BCL + (sample_id * e_num_of_constants)] = bcl;
 
     // generate file for time-series output
 
@@ -176,7 +181,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
       if(sample_id == 50){
       // printf("running ord compute rates for core 50\n");
     }
-        ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_RATES[TRPN]); 
+        ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_mec_RATES[TRPN + (sample_id * m_num_of_rates)]); 
       if(sample_id == 50){
       // printf("done, running land compute rates for core 50\n");
     }
@@ -227,8 +232,8 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
             temp_result[sample_id].qnet = inet/1000.0;
             temp_result[sample_id].inal_auc = inal_auc;
             temp_result[sample_id].ical_auc = ical_auc;
-            temp_result[sample_id].vm_dia = d_STATES[(sample_id * num_of_states) +V];
-            temp_result[sample_id].ca_dia = d_STATES[(sample_id * num_of_states) +cai];
+            temp_result[sample_id].vm_dia = d_STATES[(sample_id * e_num_of_states) +V];
+            temp_result[sample_id].ca_dia = d_STATES[(sample_id * e_num_of_states) +cai];
             if(sample_id == 50){
             //  printf("dt : %lf\n",dt[sample_id]);
              }
@@ -254,14 +259,14 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
               cipa_result[sample_id].apd90 = temp_result[sample_id].apd90;
               cipa_result[sample_id].apd50 = temp_result[sample_id].apd50;
               cipa_result[sample_id].ca_peak = temp_result[sample_id].ca_peak;
-              cipa_result[sample_id].ca_valley = d_STATES[(sample_id * num_of_states) +cai];
+              cipa_result[sample_id].ca_valley = d_STATES[(sample_id * e_num_of_states) +cai];
               cipa_result[sample_id].ca_dia = temp_result[sample_id].ca_dia;
               cipa_result[sample_id].cad90 = temp_result[sample_id].cad90;
               cipa_result[sample_id].cad50 = temp_result[sample_id].cad50;
               
               cipa_result[sample_id].dvmdt_repol = temp_result[sample_id].dvmdt_repol;
               cipa_result[sample_id].vm_peak = temp_result[sample_id].vm_peak;
-              cipa_result[sample_id].vm_valley = d_STATES[(sample_id * num_of_states) +V];
+              cipa_result[sample_id].vm_valley = d_STATES[(sample_id * e_num_of_states) +V];
               // ends of value transfers
               is_peak = true;
               init_states_captured = false;
@@ -284,12 +289,12 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
             temp_result[sample_id].dvmdt_repol = -999;
             temp_result[sample_id].dvmdt_max = -999;
             temp_result[sample_id].vm_peak = -999;
-            temp_result[sample_id].vm_valley = d_STATES[(sample_id * num_of_states) +V];;
+            temp_result[sample_id].vm_valley = d_STATES[(sample_id * e_num_of_states) +V];;
             temp_result[sample_id].vm_dia = -999;
             temp_result[sample_id].apd90 = 0.;
             temp_result[sample_id].apd50 = 0.;
             temp_result[sample_id].ca_peak = -999;
-            temp_result[sample_id].ca_valley = d_STATES[(sample_id * num_of_states) +cai];;
+            temp_result[sample_id].ca_valley = d_STATES[(sample_id * e_num_of_states) +cai];;
             temp_result[sample_id].ca_dia = -999;
             temp_result[sample_id].cad90 = 0.;
             temp_result[sample_id].cad50 = 0.;
@@ -330,7 +335,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
         // //// progress bar ends ////
 
         ord_solveAnalytical(d_CONSTANTS, d_STATES, d_ALGEBRAIC, d_RATES,  dt[sample_id], sample_id);
-        land_solveEuler(dt[sample_id], tcurr[sample_id],d_STATES[cai]*1000., d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, sample_id);
+        land_solveEuler(dt[sample_id], tcurr[sample_id],d_STATES[cai + (sample_id * e_num_of_states)]*1000., d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, sample_id);
 
         // tcurr[sample_id] = tcurr[sample_id] + dt[sample_id];
         // __syncthreads();
@@ -352,14 +357,14 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
           // is_eligible_AP
           // );
           
-			    if( tcurr[sample_id] > ((d_CONSTANTS[(sample_id * num_of_constants) +BCL]*pace_count)+(d_CONSTANTS[(sample_id * num_of_constants) +stim_start]+2)) && 
-				      tcurr[sample_id] < ((d_CONSTANTS[(sample_id * num_of_constants) +BCL]*pace_count)+(d_CONSTANTS[(sample_id * num_of_constants) +stim_start]+10)) && 
-				      abs(d_ALGEBRAIC[(sample_id * num_of_algebraic) +INa]) < 1)
+			    if( tcurr[sample_id] > ((d_CONSTANTS[(sample_id * e_num_of_constants) +BCL]*pace_count)+(d_CONSTANTS[(sample_id * e_num_of_constants) +stim_start]+2)) && 
+				      tcurr[sample_id] < ((d_CONSTANTS[(sample_id * e_num_of_constants) +BCL]*pace_count)+(d_CONSTANTS[(sample_id * e_num_of_constants) +stim_start]+10)) && 
+				      abs(d_ALGEBRAIC[(sample_id * e_num_of_algebraic) +INa]) < 1)
           {
             // printf("check 1\n");
-            if( d_STATES[(sample_id * num_of_states) +V] > temp_result[sample_id].vm_peak )
+            if( d_STATES[(sample_id * e_num_of_states) +V] > temp_result[sample_id].vm_peak )
             {
-              temp_result[sample_id].vm_peak = d_STATES[(sample_id * num_of_states) +V];
+              temp_result[sample_id].vm_peak = d_STATES[(sample_id * e_num_of_states) +V];
               if(temp_result[sample_id].vm_peak > 0)
               {
                 vm_repol30 = temp_result[sample_id].vm_peak - (0.3 * (temp_result[sample_id].vm_peak - temp_result[sample_id].vm_valley));
@@ -372,7 +377,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
               else is_eligible_AP = false;
             }
 			    }
-			    else if( tcurr[sample_id] > ((d_CONSTANTS[(sample_id * num_of_constants) +BCL]*pace_count)+(d_CONSTANTS[(sample_id * num_of_constants) +stim_start]+10)) && is_eligible_AP )
+			    else if( tcurr[sample_id] > ((d_CONSTANTS[(sample_id * e_num_of_constants) +BCL]*pace_count)+(d_CONSTANTS[(sample_id * e_num_of_constants) +stim_start]+10)) && is_eligible_AP )
           {
             // printf("check 3\n");
             // printf("rates: %lf, dvmdt_repol: %lf\n states: %lf vm30: %lf, vm90: %lf\n",
@@ -382,11 +387,11 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
             // vm_repol30,
             // vm_repol90
             // );
-				    if( d_RATES[(sample_id * num_of_rates) +V] > temp_result[sample_id].dvmdt_repol &&
-					      d_STATES[(sample_id * num_of_states) +V] <= vm_repol30 &&
-					      d_STATES[(sample_id * num_of_states) +V] >= vm_repol90 )
+				    if( d_RATES[(sample_id * e_num_of_rates) +V] > temp_result[sample_id].dvmdt_repol &&
+					      d_STATES[(sample_id * e_num_of_states) +V] <= vm_repol30 &&
+					      d_STATES[(sample_id * e_num_of_states) +V] >= vm_repol90 )
               {
-					      temp_result[sample_id].dvmdt_repol = d_RATES[(sample_id * num_of_rates) +V];
+					      temp_result[sample_id].dvmdt_repol = d_RATES[(sample_id * e_num_of_rates) +V];
                 // printf("check 4\n");
 				      }
           }
@@ -394,8 +399,8 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
 			   
           if((pace_count >= pace_max-last_drug_check_pace) && (pace_count<pace_max) ){
             int counter;
-            for(counter=0; counter<num_of_states; counter++){
-              d_all_states[(sample_id * num_of_states) + counter + (sample_size * (pace_count - last_drug_check_pace))] = d_STATES[(sample_id * num_of_states) + counter];   
+            for(counter=0; counter< e_num_of_states; counter++){
+              d_all_states[(sample_id * e_num_of_states) + counter + (sample_size * (pace_count - last_drug_check_pace))] = d_STATES[(sample_id * e_num_of_states) + counter];   
             }
 
           }
@@ -405,22 +410,22 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
           {
             // printf("input_counter: %d\n",input_counter);
             // datapoint_at_this_moment = tcurr[sample_id] - (pace_count * bcl);
-            temp_result[sample_id].cai_data[cipa_datapoint] =  d_STATES[(sample_id * num_of_states) +cai] ;
+            temp_result[sample_id].cai_data[cipa_datapoint] =  d_STATES[(sample_id * e_num_of_states) +cai] ;
             temp_result[sample_id].cai_time[cipa_datapoint] =  tcurr[sample_id];
 
-            temp_result[sample_id].vm_data[cipa_datapoint] = d_STATES[(sample_id * num_of_states) +V];
+            temp_result[sample_id].vm_data[cipa_datapoint] = d_STATES[(sample_id * e_num_of_states) +V];
             temp_result[sample_id].vm_time[cipa_datapoint] = tcurr[sample_id];
 
-            temp_result[sample_id].dvmdt_data[cipa_datapoint] = d_RATES[(sample_id * num_of_rates) +V];
+            temp_result[sample_id].dvmdt_data[cipa_datapoint] = d_RATES[(sample_id * e_num_of_rates) +V];
             temp_result[sample_id].dvmdt_time[cipa_datapoint] = tcurr[sample_id];
            
             if(init_states_captured == false){
               // printf("writinggg\n"); //cache file
               int counter;
-              for(counter=0; counter<num_of_states; counter++){
-                d_STATES_RESULT[(sample_id * (num_of_states+1)) + counter] = d_STATES[(sample_id * num_of_states) + counter];
+              for(counter=0; counter < e_num_of_states; counter++){
+                d_STATES_RESULT[(sample_id * (e_num_of_states+1)) + counter] = d_STATES[(sample_id * e_num_of_states) + counter];
               }
-              d_STATES_RESULT[(sample_id * (num_of_states+1)) + num_of_states ] = pace_count;
+              d_STATES_RESULT[(sample_id * (e_num_of_states+1)) + e_num_of_states ] = pace_count;
               init_states_captured = true;
             }
 
@@ -470,6 +475,11 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
     int num_of_states = 41;
     int num_of_algebraic = 199;
     int num_of_rates = 41;
+
+    int m_num_of_constants = 29;
+    // int m_num_of_states = 7;
+    // int m_num_of_algebraic = 24;
+    // int m_num_of_rates = 7;
 
 
     // INIT STARTS
@@ -630,7 +640,7 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
 
     while (tcurr[sample_id]<tmax)
     {
-        ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_mec_RATES[TRPN]); 
+        ord_computeRates(tcurr[sample_id], d_CONSTANTS, d_RATES, d_STATES, d_ALGEBRAIC, sample_id, d_mec_RATES[TRPN + (sample_id * m_num_of_constants)]); 
         land_computeRates(tcurr[sample_id], d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, d_mec_ALGEBRAIC, y, sample_id);
         
         dt_set = ord_set_time_step( tcurr[sample_id], time_point, max_time_step, 
@@ -747,7 +757,7 @@ __device__ void kernel_DoDrugSim_single(double *d_ic50, double *d_cvar, double *
         }
         
         ord_solveAnalytical(d_CONSTANTS, d_STATES, d_ALGEBRAIC, d_RATES,  dt[sample_id], sample_id);
-        land_solveEuler(dt[sample_id], tcurr[sample_id],d_STATES[cai]*1000., d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, sample_id);
+        land_solveEuler(dt[sample_id], tcurr[sample_id],d_STATES[cai + (sample_id * num_of_states)]*1000., d_mec_CONSTANTS, d_mec_RATES, d_mec_STATES, sample_id);
         
         if( temp_result[sample_id].dvmdt_max < d_RATES[(sample_id * num_of_states)+V] )temp_result[sample_id].dvmdt_max = d_RATES[(sample_id * num_of_states)+V];
           

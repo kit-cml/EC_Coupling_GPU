@@ -302,10 +302,15 @@ int main(int argc, char **argv)
     static const int CALCIUM_SCALING = 1000000;
     static const int CURRENT_SCALING = 1000;
 
-    int num_of_constants = 146;
-    int num_of_states = 41;
-    int num_of_algebraic = 199;
-    int num_of_rates = 41;
+    int e_num_of_constants = 146;
+    int e_num_of_states = 41;
+    int e_num_of_algebraic = 199;
+    int e_num_of_rates = 41;
+
+    int m_num_of_constants = 29;
+    int m_num_of_states = 7;
+    int m_num_of_algebraic = 24;
+    int m_num_of_rates = 7;
 
     // snprintf(buffer, sizeof(buffer),
     //   "./drugs/bepridil/IC50_samples.csv"
@@ -347,15 +352,16 @@ int main(int argc, char **argv)
     //   for (int z = 0; z <  num_of_states; z++) {printf("%lf\n", cache[ 2*(num_of_states+2) + (z+3)]);}
     // return 0 ;
 
-    cudaMalloc(&e_ALGEBRAIC, num_of_algebraic * sample_size * sizeof(double));
-    cudaMalloc(&e_CONSTANTS, num_of_constants * sample_size * sizeof(double));
-    cudaMalloc(&e_RATES, num_of_rates * sample_size * sizeof(double));
-    cudaMalloc(&e_STATES, num_of_states * sample_size * sizeof(double));
-    cudaMalloc(&e_STATES_cache, (num_of_states+2) * sample_size * sizeof(double));
-    cudaMalloc(&m_ALGEBRAIC, num_of_algebraic * sample_size * sizeof(double));
-    cudaMalloc(&m_CONSTANTS, num_of_constants * sample_size * sizeof(double));
-    cudaMalloc(&m_RATES, num_of_rates * sample_size * sizeof(double));
-    cudaMalloc(&m_STATES, num_of_states * sample_size * sizeof(double));
+    cudaMalloc(&e_ALGEBRAIC, e_num_of_algebraic * sample_size * sizeof(double));
+    cudaMalloc(&e_CONSTANTS, e_num_of_constants * sample_size * sizeof(double));
+    cudaMalloc(&e_RATES, e_num_of_rates * sample_size * sizeof(double));
+    cudaMalloc(&e_STATES, e_num_of_states * sample_size * sizeof(double));
+    cudaMalloc(&e_STATES_cache, (e_num_of_states+2) * sample_size * sizeof(double));
+
+    cudaMalloc(&m_ALGEBRAIC, m_num_of_algebraic * sample_size * sizeof(double));
+    cudaMalloc(&m_CONSTANTS, m_num_of_constants * sample_size * sizeof(double));
+    cudaMalloc(&m_RATES, m_num_of_rates * sample_size * sizeof(double));
+    cudaMalloc(&m_STATES, m_num_of_states * sample_size * sizeof(double));
     // cudaMalloc(&d_STATES_cache, (num_of_states+2) * sample_size * sizeof(double));
 
     cudaMalloc(&d_p_param,  sizeof(param_t));
