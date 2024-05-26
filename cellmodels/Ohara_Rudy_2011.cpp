@@ -1109,7 +1109,7 @@ __device__ double ord_set_time_step(double TIME,
     printf("%lf <= time_point ms\n",TIME);
     return time_step;
     printf("dV = %lf\n, time_step = %lf\n",RATES[V] * time_step, time_step);
-    printf("%d\n",std::abs(RATES[V + (offset * num_of_rates)] * time_step));
+    printf("%lf\n",std::abs(RATES[V + (offset * num_of_rates)] * time_step));
   }
   else {
     // printf("TIME > time_point ms\n");
