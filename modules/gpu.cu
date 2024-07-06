@@ -84,7 +84,7 @@ __device__ void kernel_DoDrugSim(double *d_ic50, double *d_cvar, double *d_CONST
 
     // double y[7] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0};
 
-    tcurr[sample_id] = 0.000001;
+    tcurr[sample_id] = 0.0;
     dt[sample_id] = p_param->dt;
     double tmax;
     double max_time_step = 1.0, time_point = 25.0;
