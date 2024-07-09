@@ -90,7 +90,6 @@ int get_IC50_data_from_file(const char* file_name, double *ic50)
     it returns 'how many samples were detected?' in integer.
     */
   FILE *fp_drugs;
-//   drug_t ic50;
   char *token;
   char buffer_ic50[255];
   unsigned int idx;
